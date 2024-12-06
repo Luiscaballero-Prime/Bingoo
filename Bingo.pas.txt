@@ -1,0 +1,102 @@
+program Bingo;
+
+uses crt;
+
+const
+  FILAS = 5;
+  COLUMNAS = 5;
+
+var
+  matriz: array[1..FILAS, 1..COLUMNAS] of Integer;
+  i, j, numAleatorio: Integer;
+  numerosUsados: array[1..75] of Boolean; // Para verificar números únicos
+
+procedure InicializarNumerosUsados;
+var
+  i: Integer;
+begin
+  for i := 1 to 75 do
+    numerosUsados[i] := False; // Inicializar todos los números como no usados
+end;
+
+function ObtenerNumeroUnico(inicio, fin: Integer): Integer;
+var
+  num: Integer;
+begin
+  repeat
+    num := Random(fin - inicio + 1) + inicio; // Generar un número aleatorio en el rango
+  until not numerosUsados[num]; // Asegurarse de que el número no se haya usado
+  numerosUsados[num] := True; // Marcar el número como usado
+  ObtenerNumeroUnico := num; // Devolver el número único
+end;
+
+begin
+  Randomize; // Inicializa el generador de números aleatorios
+  InicializarNumerosUsados; // Inicializar el array de números usados
+
+  // Llenar la matriz con números en los rangos especificados
+  for j := 1 to COLUMNAS do
+  begin
+    for i := 1 to FILAS do
+    begin
+      case j of
+        1: matriz[i, j] := ObtenerNumeroUnico(1, 15);   // Columna B
+        2: matriz[i, j] := ObtenerNumeroUnico(16, 30);  // Columna I
+        3: matriz[i, j] := ObtenerNumeroUnico(31, 45);  // Columna N
+        4: matriz[i, j] := ObtenerNumeroUnico(46, 60);  // Columna G
+        5: matriz[i, j] := ObtenerNumeroUnico(61, 75);  // Columna O
+      end;
+    end;
+  end;
+  
+  // Marcar el centro de la matriz
+matriz[3, 3] := 0; // Marcar el centro como -1 (o el valor que elijas)
+
+
+  // Mostrar la matriz
+  textcolor(green);
+  writeln('  B   I   N   G   O');
+  for i := 1 to FILAS do
+  begin
+    for j := 1 to COLUMNAS do
+      write(matriz[i, j]:4); // Alinear la salida
+    writeln; // Nueva línea al final de cada fila
+  end;
+
+  // Repetir hasta que se presione una tecla
+  repeat
+    textcolor(blue);
+    writeln('Presiona una tecla para extraer una Bola del Bingo...');
+    readkey; // Esperar a que el usuario presione una tecla
+
+    // Generar un número aleatorio
+    numAleatorio := Random(75) + 1; // Número aleatorio entre 1 y 75
+    textcolor(red);
+    writeln('Bola Extraida: ', numAleatorio);
+
+    // Marcar la matriz con una "X"
+    for i := 1 to FILAS do
+      for j := 1 to COLUMNAS do
+      begin
+        if matriz[i, j] = numAleatorio then
+        begin
+          matriz[i, j] := -1; // Marcar con -1 para indicar que se ha marcado
+        end;
+      end;
+
+    // Mostrar la matriz actualizada
+    textcolor(green);
+    writeln('  B   I   N   G   O');
+    for i := 1 to FILAS do
+    begin
+      for j := 1 to COLUMNAS do
+      begin
+        if matriz[i, j] = -1 then
+          write('  X  ') // Mostrar una "X" en la posición marcada
+        else
+          write(matriz[i, j]:4); // Mostrar el número original
+      end;
+      writeln; // Nueva línea al final de cada fila   
+    end;
+  until KeyPressed; // Repetir hasta que se presione una tecla
+end.
